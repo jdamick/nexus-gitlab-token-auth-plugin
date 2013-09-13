@@ -1,0 +1,107 @@
+<!--
+
+    Copyright (c) 2013 Neustar, Inc. All rights reserved.
+
+    This program is licensed to you under the Apache License Version 2.0,
+    and you may not use this file except in compliance with the Apache License Version 2.0.
+    You may obtain a copy of the Apache License Version 2.0 at http://www.apache.org/licenses/LICENSE-2.0.
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the Apache License Version 2.0 is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
+
+-->
+<model xml.namespace="${version}"
+	xml.schemaLocation="${version}"
+	xsd.namespace="${version}"
+    xsd.targetNamespace="${version}">
+
+    <id>gitlab</id>
+
+    <name>NexusGitlabPluginConfiguration</name>
+
+    <description>
+        <![CDATA[
+        <p>Nexus Gitlab Plugin Configuration.</p>
+        ]]>
+    </description>
+
+    <defaults>
+        <default>
+            <key>package</key>
+            <value>biz.neustar.nexus.plugins.gitlab.config</value>
+        </default>
+    </defaults>
+
+    <classes>
+        <class rootElement="true" xml.tagName="gitlabConfiguration">
+            <name>Configuration</name>
+            <description>The root element of Nexus Gitlab Plugin configuration.</description>
+            <fields>
+                <field>
+                    <name>gitlabServerUrl</name>
+                    <description>The Gitlab Server URL.</description>
+                    <type>String</type>
+                    <required>true</required>
+                </field>
+                <field>
+                    <name>defaultRoles</name>
+                    <version>1.0.0+</version>
+                    <description>The roles that all authenticated users are placed in.</description>
+                    <type>Set</type>
+                    <required>true</required>
+                    <association>
+                        <type>String</type>
+                        <multiplicity>*</multiplicity>
+                    </association>
+                </field>
+                <field>
+                    <name>cacheValidationInterval</name>
+                    <description>The Gitlab cache validation interval (minutes).</description>
+                    <type>int</type>
+                    <required>false</required>
+                    <defaultValue>60</defaultValue>
+                </field>
+                <field>
+                    <name>httpProxyHost</name>
+                    <description>The name of the proxy server used to transport SOAP traffic to the Gitlab server.</description>
+                    <type>String</type>
+                    <required>false</required>
+                </field>
+                <field>
+                    <name>httpProxyPort</name>
+                    <description>The connection port of the proxy server (must be specified if a proxy host is specified).</description>
+                    <type>int</type>
+                    <required>false</required>
+                </field>
+                <field>
+                    <name>httpProxyUsername</name>
+                    <description>The username used to authenticate with the proxy server (if the proxy server requires authentication).</description>
+                    <type>String</type>
+                    <required>false</required>
+                </field>
+                <field>
+                    <name>httpProxyPassword</name>
+                    <description>The password used to authenticate with the proxy server (if the proxy server requires authentication).</description>
+                    <type>String</type>
+                    <required>false</required>
+                </field>
+                <field>
+                    <name>httpMaxConnections</name>
+                    <description>The maximum number of HTTP connections in the connection pool for communication with the Gitlab server.</description>
+                    <type>int</type>
+                    <required>false</required>
+                    <defaultValue>20</defaultValue>
+                </field>
+                <field>
+                    <name>httpTimeout</name>
+                    <description>The HTTP connection timeout (milliseconds) used for communication with the Gitlab server. A value of zero indicates that there is no connection timeout.</description>
+                    <type>int</type>
+                    <required>false</required>
+                    <defaultValue>5000</defaultValue>
+                </field>
+            </fields>
+        </class>
+    </classes>
+</model>
