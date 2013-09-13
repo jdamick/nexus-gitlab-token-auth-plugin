@@ -12,7 +12,6 @@
  */
 package biz.neustar.nexus.plugins.gitlab;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -34,10 +33,12 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonatype.security.usermanagement.User;
 
-import biz.neustar.nexus.plugins.gitlab.client.CrowdClientHolder;
+import biz.neustar.nexus.plugins.gitlab.client.GitlabDao;
+import biz.neustar.nexus.plugins.gitlab.client.rest.GitlabUser;
 
-@Component(role = Realm.class, hint = GitlabAuthenticatingRealm.ROLE, description = "OSS Gitlab Token Authentication Realm")
+@Component(role = Realm.class, hint = GitlabAuthenticatingRealm.ROLE, description = "Gitlab Token Authentication Realm")
 public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initializable, Disposable {
 
 	public static final String ROLE = "NexusGitlabAuthenticationRealm";
@@ -45,9 +46,9 @@ public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initi
 	private static AtomicBoolean active = new AtomicBoolean(false);
 
 	@Requirement
-	private CrowdClientHolder crowdClientHolder;
+	private GitlabDao gitlab;
 
-	private Logger logger = LoggerFactory.getLogger(GitlabAuthenticatingRealm.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(GitlabAuthenticatingRealm.class);
 
 	// testing only.
 	static boolean isActive() {
@@ -57,7 +58,7 @@ public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initi
 	@Override
     public void dispose() {
 		active.set(false);
-		logger.info("Gitlab Realm deactivated.");
+		LOGGER.info("Gitlab Realm deactivated.");
 	}
 
 	@Override
@@ -67,7 +68,7 @@ public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initi
 
 	@Override
     public void initialize() throws InitializationException {
-		logger.info("Gitlab Realm activated.");
+	    LOGGER.info("Gitlab Realm activated.");
 		active.set(true);
 	}
 
@@ -81,38 +82,37 @@ public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initi
 		}
 		UsernamePasswordToken userPass = (UsernamePasswordToken) authenticationToken;
 		String token = new String(userPass.getPassword());
-
 		if (token.isEmpty()) {
 		    return null;
 		}
 
-		return new SimpleAuthenticationInfo(userPass.getPrincipal(), userPass.getCredentials(), getName());
-// AuthenticationException
-
-//		try {
-//			crowdClientHolder.getAuthenticationManager().authenticate(token.getUsername(), password);
-//			return new SimpleAuthenticationInfo(token.getPrincipal(), token.getCredentials(), getName());
-//		} catch (RemoteException e) {
-//			throw new AuthenticationException(DEFAULT_MESSAGE, e);
-//		}
+		try {
+		    GitlabUser gitlabUser = gitlab.getRestClient().getUser(userPass.getUsername(), token);
+		    User user = gitlabUser.toUser();
+		    if (user.getUserId() == null || user.getUserId().isEmpty()) {
+		        throw new AuthenticationException(DEFAULT_MESSAGE + " for " + userPass.getUsername());
+		    }
+		    return new SimpleAuthenticationInfo(gitlabUser /*userPass.getPrincipal()*/,
+		            userPass.getCredentials(), getName());
+		} catch (Exception e) {
+		    throw new AuthenticationException(DEFAULT_MESSAGE, e);
+		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
 		// only authorize users from this realm
 	    if (principals.getRealmNames().contains(this.getName())) {
-	        String username = (String) principals.getPrimaryPrincipal();
-	        Set<String> groups = new HashSet<String>();
-	        this.logger.debug("User: " + username + " gitlab authorization");
+	        //String username = (String) principals.getPrimaryPrincipal();
+	        GitlabUser user = (GitlabUser) principals.getPrimaryPrincipal();
+            Set<String> groups = gitlab.getGitlabPluginConfiguration().getDefaultRoles();
+            if (user.isActive()) {
+                groups.addAll(gitlab.getGitlabPluginConfiguration().getAdminRoles());
+            }
+            LOGGER.debug("User: " + user.getUsername() + " gitlab authorization");
 	        return new SimpleAuthorizationInfo(groups);
 	    }
 	    return null;
-
-//		try {
-//			Set<String> groups = crowdClientHolder.getRestClient().getNestedGroups(username);
-//			return new SimpleAuthorizationInfo(groups);
-//		} catch (RemoteException e) {
-//			throw new AuthorizationException(DEFAULT_MESSAGE, e);
-//		}
 	}
 }

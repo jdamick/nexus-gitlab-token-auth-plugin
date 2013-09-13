@@ -11,18 +11,10 @@
 package biz.neustar.nexus.plugins.gitlab.client.rest;
 
 import java.net.URISyntaxException;
-import java.rmi.RemoteException;
-import java.util.Set;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.security.authorization.Role;
-import org.sonatype.security.usermanagement.User;
-
 import biz.neustar.nexus.plugins.gitlab.config.v1_0_0.Configuration;
 
 /**
@@ -32,7 +24,7 @@ public class CachingRestClient extends RestClient {
 	private static final String REST_RESPONSE_CACHE = CachingRestClient.class.getName();
 	private static final Logger LOG = LoggerFactory.getLogger(CachingRestClient.class);
 
-	private CacheManager ehCacheManager;
+	private final CacheManager ehCacheManager;
 
 	public CachingRestClient(Configuration config) throws URISyntaxException {
 		super(config);
@@ -44,6 +36,8 @@ public class CachingRestClient extends RestClient {
 		ehCacheManager.addCache(cache);
 	}
 
+
+/*
 	@Override
 	@SuppressWarnings("unchecked")
 	public Set<String> getNestedGroups(String username) throws RemoteException {
@@ -87,8 +81,8 @@ public class CachingRestClient extends RestClient {
 		cache.put(new Element("allgroups", groups));
 		return groups;
 	}
-
-	private Cache getCache() {
+*/
+	protected Cache getCache() {
 		return ehCacheManager.getCache(REST_RESPONSE_CACHE);
 	}
 }

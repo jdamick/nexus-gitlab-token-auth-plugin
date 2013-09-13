@@ -57,6 +57,17 @@
                     </association>
                 </field>
                 <field>
+                    <name>adminRoles</name>
+                    <version>1.0.0+</version>
+                    <description>The roles that all Gitlab Admin authenticated users are placed in.</description>
+                    <type>Set</type>
+                    <required>true</required>
+                    <association>
+                        <type>String</type>
+                        <multiplicity>*</multiplicity>
+                    </association>
+                </field>
+                <field>
                     <name>cacheValidationInterval</name>
                     <description>The Gitlab cache validation interval (minutes).</description>
                     <type>int</type>

@@ -10,27 +10,15 @@
  */
 package biz.neustar.nexus.plugins.gitlab.client.rest;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.rmi.RemoteException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.security.authorization.Role;
-import org.sonatype.security.usermanagement.DefaultUser;
-import org.sonatype.security.usermanagement.User;
-import org.sonatype.security.usermanagement.UserStatus;
-
 import biz.neustar.nexus.plugins.gitlab.config.v1_0_0.Configuration;
 
 import com.sun.jersey.api.client.Client;
@@ -38,6 +26,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.client.apache.ApacheHttpClient;
 import com.sun.jersey.client.apache.config.ApacheHttpClientConfig;
 import com.sun.jersey.client.apache.config.ApacheHttpClientState;
@@ -47,7 +36,7 @@ import com.sun.jersey.client.apache.config.DefaultApacheHttpClientConfig;
  *
  */
 public class RestClient {
-	private static final Logger LOG = LoggerFactory.getLogger(RestClient.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
 	private static final Pattern ERROR_XML = Pattern.compile(".*<reason>(.*)</reason>.*<message>(.*)</message>.*", Pattern.CASE_INSENSITIVE);
 
 	private final Client client;
@@ -56,15 +45,16 @@ public class RestClient {
 	public RestClient(Configuration config) throws URISyntaxException {
 		DefaultApacheHttpClientConfig clientConfig = new DefaultApacheHttpClientConfig();
 		clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_HANDLE_COOKIES, Boolean.TRUE);
-		clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_PREEMPTIVE_AUTHENTICATION, Boolean.TRUE);
+		//clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_PREEMPTIVE_AUTHENTICATION, Boolean.TRUE);
 		clientConfig.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, new Integer(config.getHttpTimeout()));
 		clientConfig.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, new Integer(config.getHttpTimeout()));
 		clientConfig.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, new Integer(config.getHttpMaxConnections()));
 
-		// api/v3/user?private_token=<fill in>
-		serverURL = new URI(config.getGitlabServerUrl()).resolve("api/v3");
+		// /api/v3/user?private_token=<fill in>
+		serverURL = new URI(config.getGitlabServerUrl()).resolve("/api/v3/");
 
 		ApacheHttpClientState httpState = new ApacheHttpClientState();
+		httpState.clearCredentials();
 		if (StringUtils.isNotBlank(config.getHttpProxyHost()) && config.getHttpProxyPort() > 0) {
 			clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_PROXY_URI, config.getHttpProxyHost() + ':' + config.getHttpProxyPort());
 
@@ -73,15 +63,17 @@ public class RestClient {
 			}
 		}
 		clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_HTTP_STATE, httpState);
+		clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
 
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("HTTP Client config");
-			LOG.debug(config.getGitlabServerUrl());
-			LOG.debug(serverURL.toString());
-			LOG.debug("PROPERTY_THREADPOOL_SIZE:" + clientConfig.getProperty(ClientConfig.PROPERTY_THREADPOOL_SIZE));
-			LOG.debug("PROPERTY_READ_TIMEOUT:" + clientConfig.getProperty(ClientConfig.PROPERTY_READ_TIMEOUT));
-			LOG.debug("PROPERTY_CONNECT_TIMEOUT:" + clientConfig.getProperty(ClientConfig.PROPERTY_CONNECT_TIMEOUT));
-			LOG.debug("PROPERTY_PROXY_URI:" + clientConfig.getProperty(ApacheHttpClientConfig.PROPERTY_PROXY_URI));
+		if (LOGGER.isDebugEnabled()) {
+		    LOGGER.debug("Gitlab HTTP Client config");
+		    LOGGER.debug(config.getGitlabServerUrl());
+		    LOGGER.debug(serverURL.toString());
+		    LOGGER.debug("PROPERTY_THREADPOOL_SIZE: {}", clientConfig.getProperty(ClientConfig.PROPERTY_THREADPOOL_SIZE));
+		    LOGGER.debug("PROPERTY_READ_TIMEOUT: {}", clientConfig.getProperty(ClientConfig.PROPERTY_READ_TIMEOUT));
+		    LOGGER.debug("PROPERTY_CONNECT_TIMEOUT: {}", clientConfig.getProperty(ClientConfig.PROPERTY_CONNECT_TIMEOUT));
+		    LOGGER.debug("PROPERTY_PROXY_URI: {}", clientConfig.getProperty(ApacheHttpClientConfig.PROPERTY_PROXY_URI));
+
 		}
 
 		client = ApacheHttpClient.create(clientConfig);
@@ -152,28 +144,25 @@ public class RestClient {
 
 	/**
 	 * @param userid
-	 * @return a <code>org.sonatype.security.usermanagement.User</code> from Crowd by a userid
+	 * @return a <code>org.sonatype.security.usermanagement.User</code> from Gitlab by a userid
 	 * @throws RemoteException
 	 */
-	public User getUser(String userid) throws RemoteException {
-		if (LOG.isDebugEnabled()) LOG.debug("getUser(" + String.valueOf(userid) + ")");
+	public GitlabUser getUser(String userid, String token) throws RemoteException {
+	    LOGGER.debug("getUser({}, xxxx)", String.valueOf(userid));
 
-		WebResource r = client.resource(this.serverURL.resolve("user?private_token=" + );
-		        //crowdServer.resolve("user?username=" + userid));
-
-		UserResponse response = null;
+		WebResource r = client.resource(serverURL.resolve("user?private_token=" + token));
+		//Map<String, String> response = new HashMap<String, String>();
 		try {
-			response = r.get(UserResponse.class);
-
-			if (LOG.isDebugEnabled()) LOG.debug(response.toString());
-
+		    // response = r.get(Map.class);
+		    GitlabUser response = r.get(GitlabUser.class);
+			LOGGER.debug(response.toString());
+			return response;
 		} catch (UniformInterfaceException uie) {
 			throw handleError(uie);
 		}
 
-		return convertUser(response);
+		//return convertUser(response);
 	}
-
 
 
 	/**
@@ -185,7 +174,7 @@ public class RestClient {
 	 * @return
 	 * @throws RemoteException
 	 * @throws UnsupportedEncodingException
-	 */
+	 *
 	// XXX: seems Nexus 2.1.2 only search by userId
 	// so we make the search in crowd on the userid OR email
 	// A Nexus user will be able to make a lookup based on the email
@@ -279,14 +268,14 @@ public class RestClient {
 		return Collections.emptySet();
 	}
 
-
+*/
 
 
 	/**
 	 *
 	 * @return all the crowd groups
 	 * @throws RemoteException
-	 */
+	 *
 	public Set<Role> getAllGroups() throws RemoteException {
 		LOG.debug("getAllGroups()");
 
@@ -307,19 +296,43 @@ public class RestClient {
 		} catch (UniformInterfaceException uie) {
 			throw handleError(uie);
 		}
-	}
+	}*/
 
-
-	private User convertUser(UserResponse in) {
+/*
+	protected static User convertUser(Map<String, String> in) {
 		User user = new DefaultUser();
-		user.setUserId(in.name);
-		user.setFirstName(in.firstName);
-		user.setLastName(in.lastName);
-		user.setEmailAddress(in.email);
-		user.setStatus(in.active ? UserStatus.active : UserStatus.disabled);
-		return user;
-	}
+		String name = nullToEmpty(in.get("name"));
 
+		String firstName = name;
+        String lastName = "";
+		int split = name.indexOf(',');
+
+		if (split > 0) {
+		    lastName = name.substring(0, split).trim();
+            firstName = name.substring(split + 1).trim();
+        } else {
+            split = name.indexOf(' ');
+            if (split > 0) {
+                firstName = name.substring(0, split).trim();
+                lastName = name.substring(split + 1).trim();
+            }
+		}
+
+		user.setUserId(in.get("username"));
+		user.setFirstName(firstName);
+		user.setLastName(lastName);
+		user.setEmailAddress(nullToEmpty(in.get("email")));
+		String state = nullToEmpty(in.get("state"));
+		boolean active = (state.equalsIgnoreCase("active"));
+		user.setStatus(active ? UserStatus.active : UserStatus.disabled);
+		return user;
+	}*/
+
+
+	public static String nullToEmpty(String s) {
+	    return s == null ? "" : s;
+	}
+/*
 	private Role convertGroup(GroupResponse in) {
         Role role = new Role();
         role.setRoleId(in.name);
@@ -328,7 +341,7 @@ public class RestClient {
         role.setReadOnly(true);
 		return role;
 	}
-
+*/
 	private RemoteException handleError(UniformInterfaceException uie) {
 		ClientResponse response = uie.getResponse();
 		String errorXml = response.getEntity(String.class);

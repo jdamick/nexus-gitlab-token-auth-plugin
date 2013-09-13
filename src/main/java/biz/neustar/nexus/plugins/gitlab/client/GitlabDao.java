@@ -13,10 +13,12 @@
 package biz.neustar.nexus.plugins.gitlab.client;
 
 import biz.neustar.nexus.plugins.gitlab.client.rest.RestClient;
+import biz.neustar.nexus.plugins.gitlab.config.v1_0_0.Configuration;
 
 /**
  *
  */
 public interface GitlabDao {
-    public RestClient getRestClient();
+    RestClient getRestClient();
+    Configuration getGitlabPluginConfiguration();
 }

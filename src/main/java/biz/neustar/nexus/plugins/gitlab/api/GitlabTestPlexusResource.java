@@ -12,14 +12,11 @@
  */
 package biz.neustar.nexus.plugins.gitlab.api;
 
-import java.rmi.RemoteException;
-
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.restlet.Context;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
-import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
 import org.sonatype.plexus.rest.resource.AbstractPlexusResource;
@@ -57,13 +54,13 @@ public class GitlabTestPlexusResource extends AbstractPlexusResource {
     @Override
     public Object get(Context context, Request request, Response response, Variant variant)
             throws ResourceException {
-        try {
+//        try {
             //crowdClientHolder.getRestClient().getCookieConfig();
             //gitlab.getRestClient().
             return "<status>OK</status>";
-        } catch (RemoteException e) {
-            throw new ResourceException(Status.SERVER_ERROR_SERVICE_UNAVAILABLE,
-                    "Unable to authenticate. Check configuration.", e);
-        }
+//        } catch (RemoteException e) {
+//            throw new ResourceException(Status.SERVER_ERROR_SERVICE_UNAVAILABLE,
+//                    "Unable to authenticate. Check configuration.", e);
+//        }
     }
 }
