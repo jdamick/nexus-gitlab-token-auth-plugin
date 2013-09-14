@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gitlabConfiguration>
+  <gitlabServerUrl>https://git.nexgen.neustar.biz</gitlabServerUrl>
+  <defaultRoles>
+    <defaultRole>person</defaultRole>
+  </defaultRoles>
+  <adminRoles>
+    <adminRole>nx-admin</adminRole>
+  </adminRoles>
+</gitlabConfiguration>

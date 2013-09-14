@@ -8,9 +8,24 @@ This was heavily influenced and adapted for Gitlab.
 
 # Install
 
-unzip the bundle under sonatype-work/nexus/plugin-repository
+* Unzip the bundle (target/nexus-gitlab-token-auth-plugin-0.1.0-SNAPSHOT-bundle.zip) under sonatype-work/nexus/plugin-repository
+* Copy & Edit the sample/gitlab-plugin.xml to: `sonatype-work/nexus/conf/gitlab-plugin.xml`
+* Start Nexus and use the Administration->Server panel to add Gitlab Token Authentication Realm to the list of active realms.
 
-Start Nexus and use the Administration->Server panel to add OSS Crowd Authentication Realm to the list of active realms.
+## Configuration
+
+```
+ <?xml version="1.0" encoding="UTF-8"?>
+ <gitlabConfiguration>
+  <gitlabServerUrl>https://git.nexgen.neustar.biz</gitlabServerUrl>
+  <defaultRoles>
+    <defaultRole>person</defaultRole>
+  </defaultRoles>
+  <adminRoles>
+    <adminRole>nx-admin</adminRole>
+  </adminRoles>
+ </gitlabConfiguration>
+```
 
 
 # Development

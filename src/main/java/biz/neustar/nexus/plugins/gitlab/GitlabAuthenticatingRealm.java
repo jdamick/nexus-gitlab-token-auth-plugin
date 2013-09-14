@@ -31,6 +31,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
+import org.codehaus.plexus.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.security.usermanagement.User;
@@ -110,7 +111,10 @@ public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initi
             if (user.isActive()) {
                 groups.addAll(gitlab.getGitlabPluginConfiguration().getAdminRoles());
             }
-            LOGGER.debug("User: " + user.getUsername() + " gitlab authorization");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("User: " + user.getUsername() + " gitlab authorization to groups: " +
+                    StringUtils.join(groups.iterator(), ", "));
+            }
 	        return new SimpleAuthorizationInfo(groups);
 	    }
 	    return null;
