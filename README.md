@@ -31,7 +31,7 @@ Then you can make changes using the configuration classes.
 Build:  mvn clean install
 Generates: target/nexus-gitlab-token-auth-plugin-0.1.0-SNAPSHOT-bundle.zip
 
-# Credits
+### Credits
 
 Thanks to the Crowd Plugin:
 https://github.com/PatrickRoumanoff/nexus-crowd-plugin
