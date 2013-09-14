@@ -25,8 +25,6 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.guice.bean.locators.BeanLocator;
-//import org.sonatype.nexus.plugins.crowd.config.model.v1_0_0.Configuration;
-//import org.sonatype.nexus.plugins.crowd.config.model.v1_0_0.io.xpp3.NexusCrowdPluginConfigurationXpp3Reader;
 import org.sonatype.sisu.goodies.eventbus.internal.DefaultEventBus;
 import org.sonatype.sisu.goodies.eventbus.internal.guava.EventBus;
 

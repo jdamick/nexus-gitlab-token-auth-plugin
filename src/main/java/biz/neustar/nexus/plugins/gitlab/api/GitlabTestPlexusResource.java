@@ -43,7 +43,7 @@ public class GitlabTestPlexusResource extends AbstractPlexusResource {
 
     @Override
     public PathProtectionDescriptor getResourceProtection() {
-        return new PathProtectionDescriptor("/crowd/test", "anon");
+        return new PathProtectionDescriptor("/gitlab/test", "anon");
     }
 
     @Override

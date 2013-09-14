@@ -16,7 +16,7 @@
 <project>
   <body>
     <menu name="Documentation">
-        <item name="Download" href="http://repository.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=org.sonatype.nexus.plugins&amp;a=nexus-crowd-auth&amp;v=${project.version}&amp;c=nexus-plugin&amp;p=zip"/>
+        <item name="Download" href="http://repository.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&amp;g=org.sonatype.nexus.plugins&amp;a=nexus-gitlab-token-auth&amp;v=${project.version}&amp;c=nexus-plugin&amp;p=zip"/>
 		<item name="Install" href="install.html"/>
     </menu>
     <menu ref="reports"/>
