@@ -1,18 +1,12 @@
-Nexus authentication using Gitlab User token
+# Nexus authentication using Gitlab User token
 
-
-Thanks to the Crowd Plugin:
-https://github.com/PatrickRoumanoff/nexus-crowd-plugin
-
-This was heavily influenced and adapted for Gitlab.
-
-# Install
+## Install
 
 * Unzip the bundle (target/nexus-gitlab-token-auth-plugin-0.1.0-SNAPSHOT-bundle.zip) under sonatype-work/nexus/plugin-repository
 * Copy & Edit the sample/gitlab-plugin.xml to: `sonatype-work/nexus/conf/gitlab-plugin.xml`
 * Start Nexus and use the Administration->Server panel to add Gitlab Token Authentication Realm to the list of active realms.
 
-## Configuration
+### Configuration
 
 ```
  <?xml version="1.0" encoding="UTF-8"?>
@@ -28,7 +22,7 @@ This was heavily influenced and adapted for Gitlab.
 ```
 
 
-# Development
+## Development
 
 First: mvn generate-sources
 - Generates Configuration stubs
@@ -36,3 +30,10 @@ Then you can make changes using the configuration classes.
 
 Build:  mvn clean install
 Generates: target/nexus-gitlab-token-auth-plugin-0.1.0-SNAPSHOT-bundle.zip
+
+# Credits
+
+Thanks to the Crowd Plugin:
+https://github.com/PatrickRoumanoff/nexus-crowd-plugin
+This was heavily influenced and adapted for Gitlab.
+
