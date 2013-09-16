@@ -108,4 +108,23 @@ public class GitlabUser {
     public static String nullToEmpty(String s) {
         return s == null ? "" : s;
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder()
+            .append(super.toString())
+            .append("[")
+            .append("id=").append(id)
+            .append("username=").append(username)
+            .append("email=").append(email)
+            .append("name=").append(name)
+            .append("private_token=").append("<HIDDEN>")
+            .append("state=").append(state)
+            .append("created_at=").append(created_at)
+            .append("is_admin=").append(is_admin)
+            .append("can_create_group=").append(can_create_group)
+            .append("can_create_team=").append(can_create_team)
+            .append("can_create_project=").append(can_create_project)
+            .append("]").toString();
+    }
 }

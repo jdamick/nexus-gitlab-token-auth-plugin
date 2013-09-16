@@ -11,8 +11,15 @@ package biz.neustar.nexus.plugins.gitlab.client.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import javax.ws.rs.core.MediaType;
+
+import org.apache.http.HttpHeaders;
 import org.junit.Test;
 import org.sonatype.security.usermanagement.User;
+
+import com.google.mockwebserver.MockResponse;
+import com.google.mockwebserver.MockWebServer;
+import com.google.mockwebserver.RecordedRequest;
 
 import biz.neustar.nexus.plugins.gitlab.config.v1_0_0.Configuration;
 
@@ -44,13 +51,43 @@ public class RestClientTest {
         assertEquals("", user.getLastName());
     }
 
+    static final String user = "{\"id\":2,\"username\":\"jeffrey.damick\"," +
+    		"\"email\":\"jeffrey.damick@neustar.biz\",\"name\":\"Damick, Jeffrey\"," +
+    		"\"bio\":null,\"skype\":\"\",\"linkedin\":\"\"," +
+    		"\"twitter\":\"\",\"theme_id\":5," +
+    		"\"color_scheme_id\":1,\"state\":\"active\"," +
+    		"\"created_at\":\"2012-06-13T21:13:47Z\"," +
+    		"\"extern_uid\":\"uid=jdamick,ou=Neustar,ou=Staff,o=Neustar\"," +
+    		"\"provider\":\"ldap\"," +
+    		"\"private_token\":\"xCasdfa32342FDvdfgF\",\"is_admin\":true," +
+    		"\"can_create_group\":true,\"can_create_project\":true,\"can_create_team\":true}";
+
     @Test
     public void testClient() throws Exception {
+        MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .setBody(user));
+        server.play();
+
+        boolean usingMockServer = true;
         Configuration conf = new Configuration();
-        conf.setGitlabServerUrl(GITLAB);
+        String token = System.getProperty("TOKEN");
+        if (token != null) {
+            conf.setGitlabServerUrl(GITLAB);
+            usingMockServer = false;
+        } else {
+            token = "1234alskfadlskfj";
+            conf.setGitlabServerUrl("http://" + server.getHostName() + ":"+server.getPort());
+        }
         RestClient client = new RestClient(conf);
-        GitlabUser user = client.getUser("jdamick", "rEyQEHRhTNqBAALWubqZ");
+        GitlabUser user = client.getUser("jdamick", token);
         assertNotNull(user);
         assertNotNull(user.toUser().getUserId());
+        assertEquals("jeffrey.damick", user.toUser().getUserId());
+
+        if (usingMockServer) {
+            RecordedRequest request = server.takeRequest(); // 1 request recorded
+            assertEquals("/api/v3/user?private_token=" + token, request.getPath());
+        }
     }
 }

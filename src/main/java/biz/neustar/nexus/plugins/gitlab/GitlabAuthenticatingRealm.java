@@ -91,11 +91,17 @@ public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initi
 
 		try {
 		    LOGGER.debug(GITLAB_MSG + "authenticating {}", userPass.getUsername());
+
+		    LOGGER.debug(GITLAB_MSG + "null? " + gitlab);
+		    LOGGER.debug(GITLAB_MSG + "null? " + gitlab.getRestClient());
+
 		    GitlabUser gitlabUser = gitlab.getRestClient().getUser(userPass.getUsername(), token);
 		    User user = gitlabUser.toUser();
 		    if (user.getUserId() == null || user.getUserId().isEmpty()) {
+		        LOGGER.debug(GITLAB_MSG + "authentication failed {}", user);
 		        throw new AuthenticationException(DEFAULT_MESSAGE + " for " + userPass.getUsername());
 		    }
+		    LOGGER.debug(GITLAB_MSG + "successfully authenticated {}", userPass.getUsername());
 		    return new SimpleAuthenticationInfo(gitlabUser /*userPass.getPrincipal()*/,
 		            userPass.getCredentials(), getName());
 		} catch (Exception e) {

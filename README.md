@@ -28,8 +28,10 @@ First: mvn generate-sources
 - Generates Configuration stubs
 Then you can make changes using the configuration classes.
 
-Build:  mvn clean install
+Build:  mvn clean install -DskipTests=true
 Generates: target/nexus-gitlab-token-auth-plugin-0.1.0-SNAPSHOT-bundle.zip
+
+Integration Tests: mvn test
 
 ### Credits
 

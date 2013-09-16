@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gitlabConfiguration>
-  <gitlabServerUrl>http://jdam-macsl.local:49223</gitlabServerUrl>
+  <gitlabServerUrl>GITLAB_URL</gitlabServerUrl>
   <defaultRoles>
     <defaultRole>person</defaultRole>
   </defaultRoles>
