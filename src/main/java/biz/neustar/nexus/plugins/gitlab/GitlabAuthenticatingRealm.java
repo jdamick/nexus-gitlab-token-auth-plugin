@@ -114,7 +114,6 @@ public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initi
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
 		// only authorize users from this realm
 	    if (principals.getRealmNames().contains(this.getName())) {
-	        //String username = (String) principals.getPrimaryPrincipal();
 	        GitlabUser user = (GitlabUser) principals.getPrimaryPrincipal();
 	        LOGGER.debug(GITLAB_MSG + "authorizing {}", user.getUsername());
             Set<String> groups = gitlab.getGitlabPluginConfiguration().getDefaultRoles();
