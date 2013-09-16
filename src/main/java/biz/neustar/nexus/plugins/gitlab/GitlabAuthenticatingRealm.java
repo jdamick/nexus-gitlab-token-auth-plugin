@@ -42,6 +42,7 @@ import biz.neustar.nexus.plugins.gitlab.client.rest.GitlabUser;
 @Component(role = Realm.class, hint = GitlabAuthenticatingRealm.ROLE, description = "Gitlab Token Authentication Realm")
 public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initializable, Disposable {
 
+    private static final String GITLAB_MSG = "[Gitlab] ";
 	public static final String ROLE = "NexusGitlabAuthenticationRealm";
 	private static final String DEFAULT_MESSAGE = "Could not retrieve info from Gitlab.";
 	private static AtomicBoolean active = new AtomicBoolean(false);
@@ -59,7 +60,7 @@ public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initi
 	@Override
     public void dispose() {
 		active.set(false);
-		LOGGER.info("Gitlab Realm deactivated.");
+		LOGGER.info(GITLAB_MSG + "Realm deactivated.");
 	}
 
 	@Override
@@ -69,7 +70,7 @@ public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initi
 
 	@Override
     public void initialize() throws InitializationException {
-	    LOGGER.info("Gitlab Realm activated.");
+	    LOGGER.info(GITLAB_MSG + "Realm activated.");
 		active.set(true);
 	}
 
@@ -84,10 +85,12 @@ public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initi
 		UsernamePasswordToken userPass = (UsernamePasswordToken) authenticationToken;
 		String token = new String(userPass.getPassword());
 		if (token.isEmpty()) {
+		    LOGGER.debug(GITLAB_MSG + "token for {} is empty", userPass.getUsername());
 		    return null;
 		}
 
 		try {
+		    LOGGER.debug(GITLAB_MSG + "authenticating {}", userPass.getUsername());
 		    GitlabUser gitlabUser = gitlab.getRestClient().getUser(userPass.getUsername(), token);
 		    User user = gitlabUser.toUser();
 		    if (user.getUserId() == null || user.getUserId().isEmpty()) {
@@ -107,12 +110,13 @@ public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initi
 	    if (principals.getRealmNames().contains(this.getName())) {
 	        //String username = (String) principals.getPrimaryPrincipal();
 	        GitlabUser user = (GitlabUser) principals.getPrimaryPrincipal();
+	        LOGGER.debug(GITLAB_MSG + "authorizing {}", user.getUsername());
             Set<String> groups = gitlab.getGitlabPluginConfiguration().getDefaultRoles();
             if (user.isActive()) {
                 groups.addAll(gitlab.getGitlabPluginConfiguration().getAdminRoles());
             }
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("User: " + user.getUsername() + " gitlab authorization to groups: " +
+                LOGGER.debug(GITLAB_MSG + "User: " + user.getUsername() + " gitlab authorization to groups: " +
                     StringUtils.join(groups.iterator(), ", "));
             }
 	        return new SimpleAuthorizationInfo(groups);

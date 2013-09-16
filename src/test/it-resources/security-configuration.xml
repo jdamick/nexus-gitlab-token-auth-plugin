@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<security-configuration>
+  <version>2.0.3</version>
+  <enabled>true</enabled>
+  <anonymousAccessEnabled>true</anonymousAccessEnabled>
+  <anonymousUsername>anonymous</anonymousUsername>
+  <anonymousPassword>{gYtGeIOoED8Hyi55dxi49Zo8yuDi7JEnTT5ZskEuLkQ=}</anonymousPassword>
+  <realms>
+    <realm>XmlAuthenticatingRealm</realm>
+    <realm>XmlAuthorizingRealm</realm>
+    <realm>NexusGitlabAuthenticationRealm</realm>
+  </realms>
+  <securityManager>default</securityManager>
+</security-configuration>
