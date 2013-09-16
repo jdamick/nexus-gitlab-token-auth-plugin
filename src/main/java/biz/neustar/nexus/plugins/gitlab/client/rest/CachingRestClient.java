@@ -11,10 +11,16 @@
 package biz.neustar.nexus.plugins.gitlab.client.rest;
 
 import java.net.URISyntaxException;
+import java.rmi.RemoteException;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.store.LfuPolicy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import biz.neustar.nexus.plugins.gitlab.config.v1_0_0.Configuration;
 
 /**
@@ -30,59 +36,28 @@ public class CachingRestClient extends RestClient {
 		super(config);
 
 		ehCacheManager = CacheManager.getInstance();
-		// create a cache with max items = 10000 and TTL (live and idle) = 1 hour
 		long ttl = config.getCacheValidationInterval() * 60; // minutes to seconds
 		Cache cache = new Cache(REST_RESPONSE_CACHE, 10000, false, false, ttl, ttl);
+		cache.setMemoryStoreEvictionPolicy(new LfuPolicy());
 		ehCacheManager.addCache(cache);
 	}
 
-
-/*
 	@Override
-	@SuppressWarnings("unchecked")
-	public Set<String> getNestedGroups(String username) throws RemoteException {
-		Cache cache = getCache();
-		Element elem = cache.get("nestedgroups" + username);
+	public GitlabUser getUser(String userId, String token) throws RemoteException {
+		Cache cache = cache();
+		final String key = String.format("getUser:%s:%s", userId, token);
+		Element elem = cache.get(key);
 		if (elem != null) {
-			if (LOG.isDebugEnabled()) LOG.debug("getNestedGroups(" + username + ") from cache");
-			return (Set<String>) elem.getObjectValue();
+			LOG.debug("Cache Hit: getUser({}) from cache", userId);
+			return (GitlabUser) elem.getObjectValue();
 		}
 
-		Set<String> groups = super.getNestedGroups(username);
-		cache.put(new Element("nestedgroups" + username, groups));
-		return groups;
-	}
-
-	@Override
-	public User getUser(String userid) throws RemoteException {
-		Cache cache = getCache();
-		Element elem = cache.get("user" + userid);
-		if (elem != null) {
-			if (LOG.isDebugEnabled()) LOG.debug("getUser(" + userid + ") from cache");
-			return (User) elem.getObjectValue();
-		}
-
-		User user = super.getUser(userid);
-		cache.put(new Element("user" + userid, user));
+		GitlabUser user = super.getUser(userId, token);
+		cache.put(new Element(key, user));
 		return user;
 	}
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public Set<Role> getAllGroups() throws RemoteException {
-		Cache cache = getCache();
-		Element elem = cache.get("allgroups");
-		if (elem != null) {
-			if (LOG.isDebugEnabled()) LOG.debug("getAllGroups from cache");
-			return (Set<Role>) elem.getObjectValue();
-		}
-
-		Set<Role> groups = super.getAllGroups();
-		cache.put(new Element("allgroups", groups));
-		return groups;
-	}
-*/
-	protected Cache getCache() {
+	protected Cache cache() {
 		return ehCacheManager.getCache(REST_RESPONSE_CACHE);
 	}
 }
