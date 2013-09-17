@@ -25,6 +25,8 @@ public class GitlabUser {
     @JsonProperty
     private final String name;
     @JsonProperty
+    private final String external_uid;
+    @JsonProperty
     private final String private_token;
     @JsonProperty
     private final String state;
@@ -44,6 +46,7 @@ public class GitlabUser {
         username = "";
         email = "";
         name = "";
+        external_uid = "";
         private_token = "";
         state = "";
         created_at = "";
@@ -58,6 +61,7 @@ public class GitlabUser {
         username = "";
         email = "";
         this.name = name;
+        external_uid = "";
         private_token = "";
         state = "";
         created_at = "";

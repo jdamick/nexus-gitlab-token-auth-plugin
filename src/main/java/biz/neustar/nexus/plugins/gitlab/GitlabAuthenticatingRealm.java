@@ -42,7 +42,7 @@ import biz.neustar.nexus.plugins.gitlab.client.rest.GitlabUser;
 @Component(role = Realm.class, hint = GitlabAuthenticatingRealm.ROLE, description = "Gitlab Token Authentication Realm")
 public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initializable, Disposable {
 
-    private static final String GITLAB_MSG = "[Gitlab] ";
+    public static final String GITLAB_MSG = "[Gitlab] ";
 	public static final String ROLE = "NexusGitlabAuthenticationRealm";
 	private static final String DEFAULT_MESSAGE = "Could not retrieve info from Gitlab.";
 	private static AtomicBoolean active = new AtomicBoolean(false);
@@ -92,8 +92,8 @@ public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initi
 		try {
 		    LOGGER.debug(GITLAB_MSG + "authenticating {}", userPass.getUsername());
 
-		    LOGGER.debug(GITLAB_MSG + "null? " + gitlab);
-		    LOGGER.debug(GITLAB_MSG + "null? " + gitlab.getRestClient());
+		    LOGGER.debug(GITLAB_MSG + "null? " + (gitlab == null));
+		    LOGGER.debug(GITLAB_MSG + "null? " + (gitlab.getRestClient() == null));
 
 		    GitlabUser gitlabUser = gitlab.getRestClient().getUser(userPass.getUsername(), token);
 		    User user = gitlabUser.toUser();
@@ -105,6 +105,7 @@ public class GitlabAuthenticatingRealm extends AuthorizingRealm implements Initi
 		    return new SimpleAuthenticationInfo(gitlabUser /*userPass.getPrincipal()*/,
 		            userPass.getCredentials(), getName());
 		} catch (Exception e) {
+		    LOGGER.debug(GITLAB_MSG + "authentication failed {}", userPass.getUsername());
 		    throw new AuthenticationException(DEFAULT_MESSAGE, e);
 		}
 	}

@@ -7,4 +7,8 @@
   <adminRoles>
     <adminRole>nx-admin</adminRole>
   </adminRoles>
+  <!-- for ldap matching
+  <userIdField>extern_uid</userIdField>
+  <userIdFieldMatch>uid=(\w*).*</userIdFieldMatch>
+   -->
 </gitlabConfiguration>

@@ -80,7 +80,7 @@ public class RestClientTest {
             conf.setGitlabServerUrl("http://" + server.getHostName() + ":"+server.getPort());
         }
         RestClient client = new RestClient(conf);
-        GitlabUser user = client.getUser("jdamick", token);
+        GitlabUser user = client.getUser("jeffrey.damick@neustar.biz", token);
         assertNotNull(user);
         assertNotNull(user.toUser().getUserId());
         assertEquals("jeffrey.damick", user.toUser().getUserId());

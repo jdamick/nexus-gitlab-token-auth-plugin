@@ -8,4 +8,6 @@
     <adminRole>nx-admin</adminRole>
   </adminRoles>
   <cacheValidationInterval>0</cacheValidationInterval>
+  <userIdField>extern_uid</userIdField>
+  <userIdFieldMatch>uid=(\w*).*</userIdFieldMatch>
 </gitlabConfiguration>

@@ -46,6 +46,18 @@
                     <required>true</required>
                 </field>
                 <field>
+                    <name>userIdField</name>
+                    <description>Field to match the user id against in Gitlab User model. (default: email)</description>
+                    <type>String</type>
+                    <required>false</required>
+                </field>
+                <field>
+                    <name>userIdFieldMatch</name>
+                    <description>Regex to use in field to match the user id against in Gitlab User model. (default: equals)</description>
+                    <type>String</type>
+                    <required>false</required>
+                </field>
+                <field>
                     <name>defaultRoles</name>
                     <version>1.0.0+</version>
                     <description>The roles that all authenticated users are placed in.</description>
