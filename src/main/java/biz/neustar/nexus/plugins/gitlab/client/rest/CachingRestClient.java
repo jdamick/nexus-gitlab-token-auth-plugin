@@ -31,30 +31,47 @@ public class CachingRestClient extends RestClient {
 	private static final Logger LOG = LoggerFactory.getLogger(CachingRestClient.class);
 
 	private final CacheManager ehCacheManager;
+	private final boolean cacheEnabled;
 
 	public CachingRestClient(Configuration config) throws URISyntaxException {
 		super(config);
 
 		ehCacheManager = CacheManager.getInstance();
+		this.cacheEnabled = config.getCacheValidationInterval() > 0;
 		long ttl = config.getCacheValidationInterval() * 60; // minutes to seconds
 		Cache cache = new Cache(REST_RESPONSE_CACHE, 10000, false, false, ttl, ttl);
-		cache.setMemoryStoreEvictionPolicy(new LfuPolicy());
 		ehCacheManager.addCache(cache);
+		cache.setMemoryStoreEvictionPolicy(new LfuPolicy());
 	}
 
 	@Override
 	public GitlabUser getUser(String userId, String token) throws RemoteException {
-		Cache cache = cache();
 		final String key = String.format("getUser:%s:%s", userId, token);
-		Element elem = cache.get(key);
-		if (elem != null) {
+		GitlabUser user = getCacheEntry(key);
+		if (user != null) {
 			LOG.debug("Cache Hit: getUser({}) from cache", userId);
-			return (GitlabUser) elem.getObjectValue();
+			return user;
 		}
 
-		GitlabUser user = super.getUser(userId, token);
-		cache.put(new Element(key, user));
+		user = super.getUser(userId, token);
+		store(key, user);
 		return user;
+	}
+
+	@SuppressWarnings("unchecked")
+    protected <T> T getCacheEntry(String key) {
+	    Element elem = cache().get(key);
+	    T result = null;
+	    if (cacheEnabled && elem != null) {
+	        result = (T) elem.getObjectValue();
+	    }
+	    return result;
+	}
+
+	protected void store(String key, Object obj) {
+	    if (cacheEnabled) {
+	        cache().put(new Element(key, obj));
+	    }
 	}
 
 	protected Cache cache() {

@@ -69,7 +69,7 @@
                 </field>
                 <field>
                     <name>cacheValidationInterval</name>
-                    <description>The Gitlab cache validation interval (minutes).</description>
+                    <description>The Gitlab cache validation interval (minutes), 0 disables.</description>
                     <type>int</type>
                     <required>false</required>
                     <defaultValue>60</defaultValue>
