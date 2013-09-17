@@ -36,6 +36,13 @@
 			<url>https://repository.sonatype.org/content/groups/public</url>
 		</repository>
 	</repositories>
+        <distributionManagement>
+        	<repository>
+			<id>nexus</id>
+            		<name>nexgen nexus</name>
+            		<url>${release.repo.url}</url>
+        	</repository>
+        </distributionManagement>
 
 	<dependencies>
 		<!-- Main plugin API, pulling in what is needed -->
