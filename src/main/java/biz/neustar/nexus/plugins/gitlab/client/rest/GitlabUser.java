@@ -8,8 +8,12 @@
 
 package biz.neustar.nexus.plugins.gitlab.client.rest;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.sonatype.security.usermanagement.DefaultUser;
 import org.sonatype.security.usermanagement.User;
 import org.sonatype.security.usermanagement.UserStatus;
@@ -24,8 +28,10 @@ public class GitlabUser {
     private final String email;
     @JsonProperty
     private final String name;
+
     @JsonProperty
-    private final String external_uid;
+    private final List<Map<String, String>> identities;
+
     @JsonProperty
     private final String private_token;
     @JsonProperty
@@ -41,12 +47,13 @@ public class GitlabUser {
     @JsonProperty
     private final Boolean can_create_project;
 
+
     public GitlabUser() {
         id = null;
         username = "";
         email = "";
         name = "";
-        external_uid = "";
+        identities = new ArrayList<>();
         private_token = "";
         state = "";
         created_at = "";
@@ -61,7 +68,7 @@ public class GitlabUser {
         username = "";
         email = "";
         this.name = name;
-        external_uid = "";
+        identities = new ArrayList<>();
         private_token = "";
         state = "";
         created_at = "";
@@ -109,6 +116,35 @@ public class GitlabUser {
         return is_admin;
     }
 
+    public List<Map<String, String>> getIdentities() {
+        if (getProvider("gitlab") == null) {
+            identities.add(generateGitlabProvider());
+        }
+
+        return identities;
+    }
+
+    // return the map if found or else null.
+    public Map<String, String> getProvider(String provider) {
+        for (Map<String, String> identity : identities) {
+            String providerName = identity.get("provider");
+            if (providerName != null && providerName.equals(provider)) {
+                return identity;
+            }
+        }
+        return null;
+    }
+
+    protected Map<String, String> generateGitlabProvider() {
+        Map<String, String> gitlab = new HashMap<>();
+        gitlab.put("id", id.toString());
+        gitlab.put("username", username);
+        gitlab.put("email", email);
+        gitlab.put("name", name);
+        gitlab.put("provider", "gitlab");
+        return gitlab;
+    }
+
     public static String nullToEmpty(String s) {
         return s == null ? "" : s;
     }
@@ -126,6 +162,7 @@ public class GitlabUser {
             .append("state=").append(state)
             .append("created_at=").append(created_at)
             .append("is_admin=").append(is_admin)
+            .append("identities=").append(identities)
             .append("can_create_group=").append(can_create_group)
             .append("can_create_team=").append(can_create_team)
             .append("can_create_project=").append(can_create_project)

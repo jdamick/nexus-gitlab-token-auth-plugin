@@ -12,12 +12,9 @@
  */
 package biz.neustar.nexus.plugins.gitlab;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.sonatype.sisu.filetasks.builder.FileRef.file;
-import static org.sonatype.sisu.filetasks.builder.FileRef.path;
-import static org.sonatype.sisu.goodies.common.Varargs.$;
-
+import com.google.mockwebserver.MockResponse;
+import com.google.mockwebserver.MockWebServer;
+import com.google.mockwebserver.RecordedRequest;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -25,10 +22,8 @@ import java.io.RandomAccessFile;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
-
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
-
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -42,12 +37,16 @@ import org.junit.runners.Parameterized;
 import org.sonatype.nexus.bundle.launcher.NexusBundleConfiguration;
 import org.sonatype.nexus.testsuite.support.NexusRunningParametrizedITSupport;
 import org.sonatype.nexus.testsuite.support.NexusStartAndStopStrategy;
-import org.sonatype.nexus.testsuite.support.ParametersLoaders;
 import org.sonatype.sisu.filetasks.FileTaskBuilder;
 
-import com.google.mockwebserver.MockResponse;
-import com.google.mockwebserver.MockWebServer;
-import com.google.mockwebserver.RecordedRequest;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.sonatype.nexus.testsuite.support.ParametersLoaders.firstAvailableTestParameters;
+import static org.sonatype.nexus.testsuite.support.ParametersLoaders.systemTestParameters;
+import static org.sonatype.nexus.testsuite.support.ParametersLoaders.testParameters;
+import static org.sonatype.sisu.filetasks.builder.FileRef.file;
+import static org.sonatype.sisu.filetasks.builder.FileRef.path;
+import static org.sonatype.sisu.goodies.common.Varargs.$;
 
 /**
  *
@@ -55,19 +54,31 @@ import com.google.mockwebserver.RecordedRequest;
  * test/java/org/sonatype/nexus/testsuite/guide/nrpits/README.md
  */
 @NexusStartAndStopStrategy(NexusStartAndStopStrategy.Strategy.EACH_TEST)
-public class GitlabAuthenticatingRealmIntegrationTest extends NexusRunningParametrizedITSupport {
+public class GitlabAuthenticatingRealmIT extends NexusRunningParametrizedITSupport {
 
     @Inject
     private FileTaskBuilder overlays;
 
     private MockWebServer server = new MockWebServer();
 
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return firstAvailableTestParameters(
+                systemTestParameters(),
+                testParameters(
+                        $("${it.nexus.bundle.groupId}:${it.nexus.bundle.artifactId}:zip:bundle")
+                )
+        ).load();
+    }
+    /*
     @Parameterized.Parameters
     public static Collection<Object[]> hardcodedParameters() {
         return ParametersLoaders.firstAvailableTestParameters(ParametersLoaders.systemTestParameters(),
                 ParametersLoaders.defaultTestParameters(),
                 ParametersLoaders.testParameters($("org.sonatype.nexus:nexus-oss-webapp:zip:bundle:2.3.0"))).load();
     }
+    */
 
     protected Model getPomInfo() {
         File pomFile = new File("pom.xml");
@@ -141,6 +152,16 @@ public class GitlabAuthenticatingRealmIntegrationTest extends NexusRunningParame
 
         configuration.addPlugins(plugin);
 
+        // why does this work in the examples.. pom is missing for me..
+        /*
+        configuration.addPlugins(
+                artifactResolver()
+                .resolveFromDependencyManagement("biz.neustar.nexus", "nexus-gitlab-token-auth-plugin", "nexus-plugin", (String)null, "zip", "bundle")
+                        //.resolvePluginFromDependencyManagement("biz.neustar.nexus", "nexus-gitlab-token-auth-plugin")
+        );
+        */
+
+
         // from the mock server
         RandomAccessFile tempConfig = null;
         RandomAccessFile gitlabConfig = null;
@@ -188,7 +209,7 @@ public class GitlabAuthenticatingRealmIntegrationTest extends NexusRunningParame
         return configuration;
     }
 
-    public GitlabAuthenticatingRealmIntegrationTest(String nexusBundleCoordinates) {
+    public GitlabAuthenticatingRealmIT(String nexusBundleCoordinates) {
         super(nexusBundleCoordinates);
     }
 

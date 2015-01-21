@@ -24,7 +24,6 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.sisu.goodies.eventbus.internal.DefaultEventBus;
 import org.sonatype.sisu.goodies.eventbus.internal.guava.EventBus;
 
@@ -36,8 +35,8 @@ public class DefaultGitlabPluginConfiguration extends DefaultEventBus implements
         GitlabPluginConfiguration {
 
 	@Inject
-	public DefaultGitlabPluginConfiguration(EventBus eventBus, BeanLocator beanLocator) {
-		super(eventBus, beanLocator);
+	public DefaultGitlabPluginConfiguration(EventBus eventBus) {
+		super(eventBus);
 	}
 
 	private final Logger logger = LoggerFactory.getLogger(DefaultGitlabPluginConfiguration.class);

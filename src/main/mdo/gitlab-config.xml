@@ -46,6 +46,12 @@
                     <required>true</required>
                 </field>
                 <field>
+                    <name>userIdProvider</name>
+                    <description>Field to match the user id against in Provider.</description>
+                    <type>String</type>
+                    <required>false</required>
+                </field>
+                <field>
                     <name>userIdField</name>
                     <description>Field to match the user id against in Gitlab User model. (default: email)</description>
                     <type>String</type>

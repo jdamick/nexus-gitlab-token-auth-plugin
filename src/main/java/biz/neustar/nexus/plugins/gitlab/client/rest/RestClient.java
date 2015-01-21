@@ -13,9 +13,11 @@ package biz.neustar.nexus.plugins.gitlab.client.rest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.rmi.RemoteException;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +29,6 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.json.JSONConfiguration;
 import com.sun.jersey.client.apache.ApacheHttpClient;
 import com.sun.jersey.client.apache.config.ApacheHttpClientConfig;
 import com.sun.jersey.client.apache.config.ApacheHttpClientState;
@@ -69,7 +70,7 @@ public class RestClient {
 		}
 
 		clientConfig.getProperties().put(ApacheHttpClientConfig.PROPERTY_HTTP_STATE, httpState);
-		clientConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
+        clientConfig.getClasses().add(JacksonJsonProvider.class);
 
 		if (LOGGER.isDebugEnabled()) {
 		    LOGGER.debug("Gitlab HTTP Client config");
@@ -96,10 +97,8 @@ public class RestClient {
 
 		WebResource r = client.resource(serverURL.resolve("user?private_token=" + token));
 		try {
-		    @SuppressWarnings("unchecked")
-            Map<String, String> respMap = r.get(Map.class);
-		    if (userIdMatcher.matches(respMap, userId)) {
-		        GitlabUser response = objMapper.convertValue(respMap, GitlabUser.class);
+			GitlabUser response = r.get(GitlabUser.class);
+		    if (userIdMatcher.matches(response.getIdentities(), userId)) {
 		        LOGGER.debug(GitlabAuthenticatingRealm.GITLAB_MSG + response.toString());
 		        return response;
 		    } else {

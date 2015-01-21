@@ -8,20 +8,17 @@
 
 package biz.neustar.nexus.plugins.gitlab.client.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import biz.neustar.nexus.plugins.gitlab.config.v1_0_0.Configuration;
+import com.google.mockwebserver.MockResponse;
+import com.google.mockwebserver.MockWebServer;
+import com.google.mockwebserver.RecordedRequest;
 import javax.ws.rs.core.MediaType;
-
 import org.apache.http.HttpHeaders;
 import org.junit.Test;
 import org.sonatype.security.usermanagement.User;
 
-import com.google.mockwebserver.MockResponse;
-import com.google.mockwebserver.MockWebServer;
-import com.google.mockwebserver.RecordedRequest;
-
-import biz.neustar.nexus.plugins.gitlab.config.v1_0_0.Configuration;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class RestClientTest {
     private static final String GITLAB = "https://git.nexgen.neustar.biz";
@@ -51,16 +48,12 @@ public class RestClientTest {
         assertEquals("", user.getLastName());
     }
 
-    static final String user = "{\"id\":2,\"username\":\"jeffrey.damick\"," +
-    		"\"email\":\"jeffrey.damick@neustar.biz\",\"name\":\"Damick, Jeffrey\"," +
-    		"\"bio\":null,\"skype\":\"\",\"linkedin\":\"\"," +
-    		"\"twitter\":\"\",\"theme_id\":5," +
-    		"\"color_scheme_id\":1,\"state\":\"active\"," +
-    		"\"created_at\":\"2012-06-13T21:13:47Z\"," +
-    		"\"extern_uid\":\"uid=jdamick,ou=Neustar,ou=Staff,o=Neustar\"," +
-    		"\"provider\":\"ldap\"," +
-    		"\"private_token\":\"xCasdfa32342FDvdfgF\",\"is_admin\":true," +
-    		"\"can_create_group\":true,\"can_create_project\":true,\"can_create_team\":true}";
+    static final String user = "{\"name\":\"Damick, Jeffrey\",\"username\":\"jeffrey.damick\"," +
+            "\"id\":2,\"state\":\"active\",\"avatar_url\":\"\",\"created_at\":\"2012-06-13T21:13:47.000Z\"," +
+            "\"is_admin\":true,\"bio\":\"\",\"skype\":\"\",\"linkedin\":\"\",\"twitter\":\"\",\"website_url\":\"\"," +
+            "\"email\":\"jeffrey.damick@neustar.biz\",\"theme_id\":5,\"color_scheme_id\":1,\"projects_limit\":200," +
+            "\"identities\":[{\"provider\":\"ldap\",\"extern_uid\":\"uid=jdamick,ou=Neustar,ou=Staff,o=Neustar\"}]," +
+            "\"can_create_group\":true,\"can_create_project\":true,\"private_token\":\"xCasdfa32342FDvdfgF\"}";
 
     @Test
     public void testClient() throws Exception {

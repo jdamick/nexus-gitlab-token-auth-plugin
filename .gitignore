@@ -4,3 +4,5 @@ target
 .settings
 bin
 src/test/it-resources/gitlab-plugin.xml
+.idea
+mvn.sh
