@@ -1,4 +1,5 @@
-# Nexus authentication using Gitlab User token
+# Nexus authentication using Gitlab User token 
+[![Build Status](https://travis-ci.org/jdamick/nexus-gitlab-token-auth-plugin.svg?branch=master)](https://travis-ci.org/jdamick/nexus-gitlab-token-auth-plugin)
 
 ## Install
 
